@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="./favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="./base.css" type="text/css">
+    <script type="text/javascript" src="./base.js"></script>
+
+    <title>Iot Home</title>
+<style>
+table { font-size:0.75em; }
+
+</style>
+</head>
+<body >
+<div style = "text-align:center;">
+<h2>온도 습도 현황</h2>
+<br>
+<div id="timezone"></div>
+</div>
+
+<table id='listlog' class='trhover' >
+    <tr bgcolor="#ffffff">
+        <th class='keycolume'>Location</td>
+        <th class='keycolume'>Temperature</td>
+        <th class='keycolume'>Humidity</td>
+        <th class='keycolume'>DustInAir</td>
+        <th class='keycolume'>Before</td>
+        <th class='keycolume'>Tested</td>
+        <th class='keycolume' style="display:none;">ip</td>
+        <th class='keycolume' style="display:none;">mac</td>
+        <th class='keycolume' name="actions" style="display:none;">action</td>
+    </tr>
+</table>
+<div style="width:100%;text-align:center;">
+<input type="checkbox" id="holdautoload" onclick="set_hold()"> Hold load, 
+<input type="checkbox" id="showaction" onclick="show_action()"> Show action, 
+<input type="button" onclick="show_hide()" value='Show Hiddens' style="display:none;">
+<input type="button" onclick="set_node()" value='Set Names'>
+</div>
+<hr>
+<div style="width:100%;text-align:center;">Copyright @2018, AnHive Co., Ltd.</div>
+
+<table id='logform' style='display:none'>
+    <tr bgcolor="#ffffff">
+        <td id='loc' class="enablewrite" ></td>
+        <td id='t' ></a></td>
+        <td id='h' ></td>
+        <td id='d' ></td>
+        <td id='time'></td>
+        <td id='c' ></td>
+        <td id='ip' style="display:none;"></td>
+        <td id='mac' style="display:none;"></td>
+        <td name="actions" style="display:none;" > 
+            <input type='button' onclick='list_sensorlog(this, "T");' value='온도'> 
+            <input type='button' onclick='list_sensorlog(this, "H");' value='습도'> 
+            <input type='button' onclick='init_node(this);' value='시작'> 
+        </td>
+    </tr>
+</table>
+
+
+
+<script>
+        
+    var clear_casecall = function(){
+        obj = document.getElementById('listlog').children;
+        for (i=obj.length;i>1;i--) {
+            //obj[i].innerHTML = casecall[obj[i].name];
+            obj[i-1].parentNode.removeChild(obj[i-1]);
+        }
+    }
+    
+    var list_log = function(){
+        var data = new FormData();
+        data.append('func', 'status');
+        
+        listlog = document.getElementById('listlog');
+        
+        POST('sensor.php', data, function (resp) {
+                console.log(resp.data);
+                clear_casecall(); //listlog.innerHTML = "";
+                
+                form = document.getElementById('logform');
+                sensorlog = resp.data;
+                counts = resp.data.length;
+                //for (ui=0;ui<sensorlog.lenght;ui++) {
+                for (ui=0;ui<counts;ui++) {
+                    //set value accord the td
+                    tr = form.getElementsByTagName('tr')[0];
+                    tr.id = sensorlog[ui]['id'];
+
+                    tds = form.getElementsByTagName('td');
+                    for (oi=0;oi<tds.length;oi++) {
+                        if (tds[oi].id =='') continue;
+                        tds[oi].innerHTML = sensorlog[ui][tds[oi].id];
+                    }
+                    //clone object
+                    newtr = tr.cloneNode(true);
+                    listlog.appendChild(newtr);
+                }
+                return;
+        });
+    }
+
+    var clear_log = function(){
+        obj = document.getElementById('listlog').children;
+        for (i=obj.length;i>1;i--) {
+            obj[i-1].parentNode.removeChild(obj[i-1]);
+        }
+    }
+
+    list_log()
+	d = new Date();
+	document.getElementById('timezone').innerHTML = d.toLocaleString();
+    //타이머를 사용한 지정
+	var interval_time = 2000
+	var hold_autoload = false
+	var timer = setTimeout(function (){
+	    d = new Date();
+	    document.getElementById('timezone').innerHTML = d.toLocaleString()
+        if (hold_autoload == false) list_log()
+        timer = setTimeout(arguments.callee, interval_time);
+	}, interval_time)
+
+
+    var set_hold = function () {
+		if ( document.getElementById('holdautoload').checked) hold_autoload = true;
+		else hold_autoload = false;
+    }
+
+    var show_hide = function () {
+        tbl = document.getElementById("listlog");
+		cells = tbl.getElementsByTagName("th");
+        [].reduce.call(cells, function(res, cell) {
+            cell.style.display='';
+            return
+        }, {});    
+		cells = tbl.getElementsByTagName("td");
+        [].reduce.call(cells, function(res, cell) {
+            cell.style.display='';
+            return
+        }, {});    
+    }
+
+    var show_action = function () {
+        objs = document.getElementsByName("actions");
+        [].reduce.call(objs, function(res, obj) {
+            obj.style.display=(obj.style.display == "")?"none":"";
+        }, {});    
+    }
+	
+    var set_node = function(obj){
+		var data = new FormData();
+		data.append('func', 'set_node');
+        
+		obj = document.getElementById("listlog");
+        var trs = obj.getElementsByTagName('TR');
+        var json_tr =new Object();;
+        
+		for (var ir =0; ir < trs.length; ir++) {
+			if ( trs[ir].nodeName !='TR') continue;
+            var json_td =new Object();;
+			if ( trs[ir].id == "" ) continue;
+			json_td['id'] = trs[ir].id
+            var tds = trs[ir].getElementsByTagName('TD');
+            for (var id =0; id < tds.length; id++) {
+                if ( tds[id].id == "") continue;
+                if ( tds[id].nodeName !='TD') continue;
+                json_td[tds[id].id] =tds[id].innerHTML;
+            }
+            json_tr[ir]=json_td;
+		}
+        data.append('table', JSON.stringify(json_tr));
+
+        POST('sensor.php', data, function (resp) {
+				console.log(resp.data);
+			}
+		);
+    }
+	
+	
+	var init_node = function(obj){
+
+		while (obj.nodeName != 'TR') obj = obj.parentNode
+		ipmac = obj.id;
+	
+		var data = new FormData();
+		data.append('func', 'init_node');
+		data.append('id', ipmac);
+
+        POST('sensor.php', data, function (resp) {
+				console.log(resp.data);
+			}
+		);
+    }
+	
+	var list_sensorlog = function(obj, mode) {
+		while (obj.nodeName != 'TR') obj = obj.parentNode
+		id = obj.id;
+		window.open("log.html?query="+id+"&mode="+mode, "_self");
+	}
+</script>
+</body>
+</html>

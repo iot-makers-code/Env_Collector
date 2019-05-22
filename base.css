@@ -1,0 +1,199 @@
+@charset "utf-8";
+
+
+@font-face{font-family: NG; src: local(※), url(NanumGothic.woff) format("woff");}
+body  {line-height: 1; font-family: NG, sans-serif; -webkit-text-size-adjust: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); font: normal NG; }
+/*
+body  {line-height: 1; font-family: sans-serif; -webkit-text-size-adjust: none; -webkit-tap-highlight-color: rgba(0, 0, 0, 0); }
+*/
+a:hover, a:visited, a:link, a:active{
+	text-decoration: none;
+}	
+
+.img_shadow { 
+	border:2px solid #fff; 
+	background: no-repeat; 
+	box-shadow: 7px 7px 3px #ccc; 
+	-moz-box-shadow: 7px 7px 3px #ccc; 
+	-webkit-box-shadow: 7px 7px 3px #ccc; 
+	-khtml-box-shadow: 7px 7px 3px #ccc; 
+}
+
+.img_angle { 
+	border:2px solid #fff; 
+	background: no-repeat; 
+}
+
+.headnote {
+	padding-top: 0.2em;
+	padding-bottom:0.2em;
+
+	border-top: solid 2px #a0a0a0;
+	border-bottom: solid 2px #a0a0a0;	
+
+	background:#c0c0c0;
+	text-align:center;
+}
+.input_title {
+	text-align : center; border:none;
+	font-weight:bold; color:blue; font-size:1.2em;
+	//background:#a0a0a0;
+	background-color: Transparent;
+}    
+
+.footer {
+	margin-top: 4px;
+
+	padding-top: 0.2em;
+	padding-bottom:0.2em;
+	border-top: solid 2px #a0a0a0;
+	border-bottom: solid 2px #a0a0a0;
+	
+	background:#b0b0b0;
+	text-align:center;
+	font-size:0.8em;
+}
+
+input {
+	margin:1px;
+}
+
+input[type=button] {
+	margin-top:5px;
+	margin-bottom:5px;
+	font-family: NG; 
+	text-align:center;
+	font-size:1em;
+}
+
+
+.button_base {
+	background: #eee; 
+	padding: 4px 0px 4px 0px ; 
+	margin:0px 10px 0px 10px;
+	font-size:0.8em;
+}
+.button_span {
+	cursor: pointer;
+	display:inline-block; width: 4.8em;
+
+	margin: 2px;
+	padding:8px 8px 8px 8px;
+	
+	//font-family: NG, sans-serif; 
+	font-size: 1.3em;
+	//font-weight: bold;
+	color:white; 
+	
+	border: solid 1px #ddd;
+	background-color:#bbb; 
+	border-radius: 6px;
+	border-color:#ddd #ddd #444 #444
+}
+.button_span:active { background:green; }
+
+.checkinput {
+	width:1.2em;
+	text-align:center;
+	cursor:pointer;
+	background-color:#444;
+	color:#eee;
+}
+
+.img_btn {
+	//background-color:red; 
+}
+
+.img_btn:active { background-color:green; }
+
+
+body.wait *, body.wait
+{
+    cursor: progress !important;
+}
+.contents {
+	width:100%;
+}
+
+.trhover tr:hover {
+    background-color:#FFCC00; 
+}
+
+table { 
+    border-collapse: separate; border-spacing: 1px; /* cellspacing="5" */
+    margin: 0 auto;
+    background-color:#B6B6B6;
+} 
+
+[contenteditable="true"]:active,
+[contenteditable="true"]:focus{
+    display:block;
+    color: red;
+    font-family: courier, sans-serif;
+    background: #fff;
+    line-height: 1.5;
+    position:relative;
+    //right: -36em;
+    //top:-2em;
+}
+
+.keycolume  {
+    background-color:#EBEBEB; 
+    text-align:center;
+}
+
+/* valign */
+th, td { 
+    padding: 8px; /* cellpadding */
+    vertical-align: top; /* cellspacing */
+    text-align:center;
+    color:#333333; 
+    line-height:140%; 
+    word-break:break-all
+}
+
+.pages { color:#565656; font-size: 14px;padding:0 0 0 0;}
+.pages :hover {color:#56FF56; cursor: pointer;}
+
+.enableread  {
+    background-color:#FFDD00; 
+    -webkit-user-modify: read;
+    -moz-user-modify: read;
+    user-modify: read;
+    background-color:lightgray;
+    width:120px;
+}
+
+.enablewrite  {
+    //background-color:#FFDD00; 
+    -webkit-user-modify: read-write-plaintext-only;
+	-moz-user-modify: read-write-plaintext-only;
+    user-modify: read-write-plaintext-only;
+    //background-color:white;
+    width:120px;
+}
+
+/* The Modal (background) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {    background-color: #fefefe;    margin: auto;    padding: 20px;    border: 1px solid #888;  width:500px;}
+
+/* The Close Button */
+.close { color: #aaaaaa; float: right; font-size: 28px; font-weight: bold;}
+
+.close:hover,
+.close:focus {  color: #000;    text-decoration: none;    cursor: pointer;}
+	

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="./favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="base.css" type="text/css">
+    <script type="text/javascript" src="base.js"></script>
+	<script type="text/javascript" src="Chart.min.js"></script>
+	<script type="text/javascript" src="utils.js"></script>
+
+    <title>Lumidiet Development</title>
+<style>
+table { font-size:0.75em; }
+body.waiting * {
+    cursor: progress;
+}
+</style>
+</head>
+<body >
+<div style = "text-align:center;">
+<h2>Query - <span id='queryname'></span> </h2>
+</div>
+
+<div id='graph' style="text-align:center;display:none;" >
+	<div style="width:600px;margin: 0 auto;border: 1px solid #ccc; background-color: #f3f3f3;">
+			<canvas style="" id="canvas"></canvas>
+	</div>
+</div>
+<br>
+<table id='headrow' class='trhover' >
+    <tr bgcolor="#ffffff">
+        <th class='keycolume'>데이터 조회중입니다</th>
+        <th class='keycolume'>잠시만 기다려 주세요</th>
+    </tr>
+    <tr bgcolor="#ffffff">
+        <td class='keycolume'>데이터 조회중입니다</td>
+        <td class='keycolume'>잠시만 기다려 주세요</td>
+    </tr>
+</table>
+<br>
+
+<table style="background-color:#FFFFFF;">
+    <tr>
+        <td align="right" style="padding:5px 0 0 0;" width="10%">
+            <img src="./img/1_btn_prev.gif" onclick="read_data(0);"> 
+            <img src="./img/1_end_btn_prev.gif" onclick="read_data('-');" >
+        </td>
+        <td id='paging' class="pages" align="center">
+        </td>
+        <td style="padding:5px 0 0 0;" width="10%"> &nbsp;
+            <img src="./img/1_end_btn_next.gif" onclick="read_data('+');" >
+            <img src="./img/1_btn_next.gif"  onclick="read_data('$');" >
+        </td>
+    </tr>
+</table>
+<br>
+
+<hr>
+<div>Copyright @2017, doubleH Co., Ltd.</div>
+
+<table id='bodyrow' style='display:none'>
+    <tr bgcolor="#ffffff">
+    </tr>
+</table>
+<script>
+
+    var color = Chart.helpers.color;
+	var barChartData = {
+		labels: [],
+		datasets: []
+	};
+	var datasets = {
+			label: 'nd',
+			backgroundColor: color(window.chartColors.red).alpha(0.5).rgbString(),
+			borderColor: window.chartColors.red,
+			borderWidth: 1,
+			data: []
+	}
+		
+
+	window.onload = function() {
+		//new_chart();
+	}
+	var new_chart = function () {
+		var ctx = document.getElementById("canvas").getContext("2d");
+		window.myBar = new Chart(ctx, {
+			type: 'line',
+			data: barChartData,
+			options: {
+				responsive: true,
+				legend: {
+					position: 'top',
+				},
+				title: {
+					display: true,
+					text: 'xx'
+				}
+			}
+		});
+		window.myBar.clear();
+		window.myBar.update();
+	};
+	
+	var colorNames = Object.keys(window.chartColors);
+	var adddataset= function(value) {
+		var colorName = colorNames[barChartData.datasets.length % colorNames.length];;
+		var dsColor = window.chartColors[colorName];
+		var newDataset = {
+			//label: 'Dataset ' + barChartData.datasets.length+ ' ' + value,
+			label: value,
+			backgroundColor: color(dsColor).alpha(0.5).rgbString(),
+			borderColor: dsColor,
+			borderWidth: 1,
+			data: []
+		};
+
+		barChartData.datasets.push(newDataset);
+		window.myBar.update();
+	};
+
+    var setdataset = function(column){
+		if (typeof barChartData.datasets[0] != 'undefined' ) return;
+		label = false;
+        for(var key in column) {
+			if (label==false) {label=true;continue;}
+            var value = key;
+			adddataset(value)
+        }
+		window.myBar.update();
+    }
+
+	var adddata = function(label, column) {
+		if (barChartData.datasets.length > 0) {
+			label = false;
+			index = 0;
+			for(var key in column) {
+				if ( label == false) {
+					label = column[key];
+					barChartData.labels.push(label);
+				} else {
+					valueis=0;
+					if (/^\d+$/.test(column[key])) {
+						valueis = column[key];
+					} else {
+						valueis = parseFloat((column[key]+"").replace(",", ""))
+					}
+					barChartData.datasets[index].data.push(valueis);
+					index ++;
+				}
+				window.myBar.update();
+			}
+
+			window.myBar.update();
+		}
+	}
+
+    var queryname = document.getElementById('queryname');
+    var queryid = null;
+
+	
+    var PRESENT_PAGE = 0;
+    var TOTAL_PAGE = 0;
+    var set_pagination = function(service, current, total) {
+        spansize = 10
+        halfsize = 5
+        console.log('service:'+service+', current:'+current+', total:'+total+'.');
+        TOTAL_PAGE= total;
+        begin_page = last_page = cur_page = batches = 0;
+        
+        begin_page =  (current < halfsize ) ? 0: current - halfsize;
+        last_page  =  (begin_page + spansize > total ) ? total : begin_page + spansize;
+        console.log('begin_page:'+begin_page+', current:'+current+', last_page:'+last_page+'.');
+        
+        pagehtml = '';
+        for (p = begin_page; p <= last_page; p++) {
+            if (p == current ) {
+                pagehtml += "<span class='current' >["+(p+1)+"]</span>\n"
+            } else {
+                pagehtml += "<span onclick='"+service+"("+p+");'>&nbsp;"+(p+1)+"&nbsp;</span>\n"
+            }
+        }
+        pagehtml += "<span onclick='"+service+"(\"ALL\");'>&nbsp;All&nbsp;</span>\n"
+        
+        document.getElementById('paging').innerHTML = pagehtml;
+    }
+	
+    
+    var read_data = function(jump){
+
+	    new_chart();
+		
+        var data = new FormData();
+        data.append('func', 'getlog');
+        data.append('query', query); // may be tr
+        data.append('mode', mode); // may be tr
+        
+        headrow = document.getElementById('headrow');
+		
+		
+        if (jump == '+') 
+            PRESENT_PAGE=(PRESENT_PAGE==TOTAL_PAGE)
+                            ?TOTAL_PAGE:PRESENT_PAGE+1;
+        else if (jump == '-') PRESENT_PAGE=(PRESENT_PAGE<=0)?0:PRESENT_PAGE--; 
+        else PRESENT_PAGE = jump;
+        data.append('page', PRESENT_PAGE);
+        
+		
+        document.getElementsByTagName('body')[0].className = 'waiting';
+        
+        POST('sensor.php', data, function (resp) {
+				graph = resp.data.graph == 'Y' ? true : false ;
+                if (graph) {
+					setdataset(resp.data.rows[0]);
+					document.getElementById('graph').style.display='';
+				} else {
+					document.getElementById('graph').style.display='none';
+				}
+                settitle(resp.data.rows[0]);
+                //clear_row(); //headrow.innerHTML = "";
+                queryname.innerHTML = resp.data.title;
+				if (graph)
+					window.myBar.options.title.text = resp.data.title
+                
+                form = document.getElementById('bodyrow');
+                rows = resp.data.rows;
+                counts = rows.length;
+                //for (ui=0;ui<rows.lenght;ui++) {
+				for (ui=0;ui<counts;ui++) {
+                    //set value accord the td
+                    tr = form.getElementsByTagName('tr')[0];
+                    tds = form.getElementsByTagName('td');
+                    for (oi=0;oi<tds.length;oi++) {
+                    
+                        if (tds[oi].id =='') continue;
+                        tds[oi].innerHTML = rows[ui][tds[oi].id];
+                    }
+                    newtr = tr.cloneNode(true);
+                    headrow.appendChild(newtr);
+
+					//for graph
+					if (graph)
+						adddata('',rows[ui] )
+                }
+                set_pagination("read_data", resp.data.page.current, resp.data.page.total);
+                document.getElementsByTagName('body')[0].className = '';
+                return;
+        });
+    }
+	
+    var settitle = function(row){
+        
+        headrow = document.getElementById('headrow');
+        headrow.innerHTML = "";
+        listform    = document.getElementById('bodyrow');
+        listform.innerHTML = "";
+        
+        headrow_data="";
+        listform_data="";
+        
+        for(var key in row) {
+            var value = row[key];
+            style= (row[key] != null && row[key].length>150)?'style="width:45%;"':'';
+            headrow_data += "<th class='keycolume' "+style+">"  +key.toUpperCase()+"</th>";
+            listform_data += "<td id='"   +key+"' ></td>";
+        }
+        headrow.innerHTML = 
+            '<tr bgcolor="#ffffff" >'+headrow_data+'</tr>';
+        listform.innerHTML = 
+            '<tr bgcolor="#ffffff">'+listform_data+'</tr>';
+    }
+
+    function getQueryParams() {
+        qs = document.location.search.split('+').join(' ');
+        var params = {},
+            tokens,
+            re = /[?&]?([^=]+)=([^&]*)/g;
+        while (tokens = re.exec(qs)) {
+            params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
+        }
+        return params;
+    }
+    queryname.innerHTML = getQueryParams().query;
+	var query =  getQueryParams().query;
+	var mode = getQueryParams().mode;
+    read_data(0);
+	
+    //루미
+</script>
+
+</body>
+</html>
